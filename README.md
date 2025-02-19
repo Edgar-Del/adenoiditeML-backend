@@ -69,5 +69,5 @@ npm run dev
 4. Envie (push) para a branch
 5. Crie um novo Pull Request
 
-## License
-[Specify your license]
+## Licença
+GNU General Public License (GPL-3.0)
