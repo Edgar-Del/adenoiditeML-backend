@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from ml.data.preprocessing import AdenoiditisPreprocessor
-from ml.models.clustering import AdenoiditisClustering
+from ml.clustering.clustering import AdenoiditisClustering
 from ml.models.classification import AdenoiditisClassifier
 
 class TestMachineLearningComponents:
