@@ -45,7 +45,7 @@ class DataPreprocessor:
         
         # Dividir caracteristicas (features) e alvo (target).
         X = df_processed[clinical_features]
-        y = df_processed['diagnostico_adenoidite']
+        y = df_processed['diagnosistico']
         
 
         X_scaled = pd.DataFrame(

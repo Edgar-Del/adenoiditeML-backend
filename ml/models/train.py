@@ -26,8 +26,8 @@ def train_model(data_path: str, model_path: str) -> None:
     modelo_knn.fit(X_train, y_train)
 
     print("Avaliando os modelos...")
-    evaluate_model(modelo_rf, X_test, y_test, "results/rf_confusion_matrix.png")
-    evaluate_model(modelo_knn, X_test, y_test, "results/knn_confusion_matrix.png")
+    evaluate_model(modelo_rf, X_test, y_test)
+    evaluate_model(modelo_knn, X_test, y_test)
 
     print("Salvando modelos...")
     joblib.dump(modelo_rf, f"{model_path}/modelo_rf.joblib")
