@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from app.api.models import PediatricAdenoiditisInput, DiagnosisOutput
 from ml.models.predict import predict_adenoiditis
-from typing import List
+from ml.models.train import train_model
+from ml.utils.evaluation import evaluate_model
 import joblib
+import pandas as pd
 
 router = APIRouter()
 
@@ -29,13 +31,21 @@ def get_recommendations(cluster: int, confianca: float) -> str:
     }
     return f"Nível de Gravidade: {severity_levels.get(cluster, 'Desconhecido')}\n{base_recommendations.get(cluster, 'Sem recomendações')}"
 
-# Correção para garantir que o modelo seja carregado corretamente
-def load_model():
+@router.post("/treinar")
+def train():
+    try:
+        train_model("data/raw/dataset.csv", "models/saved")
+        return {"message": "Modelo treinado e salvo com sucesso!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro no treinamento: {e}")
+
+@router.get("/avaliar")
+def evaluate():
     try:
         modelo = joblib.load("models/saved/modelo.joblib")
-        pre_processador = joblib.load("models/saved/pre_processador.joblib")
-        return modelo, pre_processador
-    except FileNotFoundError:
-        raise RuntimeError("Arquivo do modelo não encontrado. Certifique-se de que o modelo foi treinado e salvo corretamente.")
+        X_test = pd.read_csv("data/processed/X_test.csv")
+        y_test = pd.read_csv("data/processed/y_test.csv")
+        resultado = evaluate_model(modelo, X_test, y_test)
+        return {"message": "Avaliação realizada!", "result": resultado}
     except Exception as e:
-        raise RuntimeError(f"Erro ao carregar modelo: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro na avaliação: {e}")
