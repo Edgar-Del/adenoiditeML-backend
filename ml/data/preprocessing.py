@@ -25,6 +25,7 @@ class DataPreprocessor:
             df_processed['obstrucao_nasal']
         ) / 3
         print("Variáveis categóricas...")
+        
         # Variáveis categóricas
         categorical_cols = ['genero', 'apnea_sono']
         for col in categorical_cols:
@@ -45,7 +46,7 @@ class DataPreprocessor:
         
         # Dividir caracteristicas (features) e alvo (target).
         X = df_processed[clinical_features]
-        y = df_processed['diagnosistico']
+        y = df_processed['diagnostico']
         
 
         X_scaled = pd.DataFrame(
