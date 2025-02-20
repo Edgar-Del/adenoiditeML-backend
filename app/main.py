@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from app.api.endpoints import router
-from app.core.config import settings
 
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
-)
+app = FastAPI(title="API ML Adenoidite", version="1.0")
 
-app.include_router(router, prefix=settings.API_V1_STR)
+# Inclui os endpoints definidos no arquivo endpoints.py
+app.include_router(router, prefix="/api/v1")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
