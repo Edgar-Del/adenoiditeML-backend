@@ -24,7 +24,7 @@ class DataPreprocessor:
             df_processed['dificuldade_respirar'] + 
             df_processed['obstrucao_nasal']
         ) / 3
-        
+        print("Variáveis categóricas...")
         # Variáveis categóricas
         categorical_cols = ['genero', 'apnea_sono']
         for col in categorical_cols:
@@ -32,6 +32,7 @@ class DataPreprocessor:
             df_processed[col] = le.fit_transform(df_processed[col].astype(str))
             self.label_encoders[col] = le
         
+        print("Gerando características clínicas")
         # Características clínicas
         clinical_features = [
             'idade',
