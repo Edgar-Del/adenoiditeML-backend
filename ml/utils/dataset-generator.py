@@ -63,7 +63,6 @@ Retorno:
 # Gerar o dataset
 dataset_adenoidite = gerar_dataset(100)
 
-# Save to CSV
 dataset_adenoidite.to_csv('data/raw/dataset.csv', index=False)
 
 # Mostrar algumas estatísticas básicas do dataset
