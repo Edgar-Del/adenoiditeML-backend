@@ -11,7 +11,9 @@ router = APIRouter()
 @router.post("/diagnosticar", response_model=DiagnosisOutput)
 async def diagnose(input_data: PediatricAdenoiditisInput):
     try:
+        print("🔹 Entrada recebida:", input_data.dict())  #depuração
         diagnostico, cluster, confianca = predict_adenoiditis(input_data.dict())
+        
         recommendations = get_recommendations(cluster, confianca)
         return DiagnosisOutput(
             diagnostico=diagnostico,
@@ -20,7 +22,9 @@ async def diagnose(input_data: PediatricAdenoiditisInput):
             recomendacoes=recommendations
         )
     except Exception as e:
+        print("❌ ERRO:", e)  #depuração básica
         raise HTTPException(status_code=500, detail=str(e))
+
 
 def get_recommendations(cluster: int, confianca: float) -> str:
     severity_levels = {0: "Leve", 1: "Moderado", 2: "Grave"}
