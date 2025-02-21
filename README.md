@@ -1,4 +1,4 @@
-# Diagnóstico de Adenoidite com Machine Learning
+# 🏥 Diagnóstico de Adenoidite com Machine Learning
 
 ## Visão Geral do Projecto
 Este projecto desenvolve uma solução de ML para diagnosticar adenoidite em crianças de 0 a 5 anos, adaptada para o Hospital Pediátrico do Lubango.
@@ -9,6 +9,16 @@ Este projecto desenvolve uma solução de ML para diagnosticar adenoidite em cri
   - Classificação com K-Nearest Neighbors (KNN).
   - Agrupamento com K-Means Clustering.
 - Frontend desenvolvido em Next.js para interação com o usuário.
+
+##Resumo da sequência de execução
+1️⃣ Configurar ambiente (Criar venv, instalar dependências)
+2️⃣ Pré-processar os dados (preprocessing.py)
+3️⃣ Executar Clusterização (K-Means) (clustering.py)
+4️⃣ Treinar os Modelos (train.py)
+5️⃣ Testar e Avaliar os Modelos (evaluation.py)
+6️⃣ Rodar a API (uvicorn app.main:app --reload)
+7️⃣ Testar Predições na API (/diagnosticar)
+8️⃣ Testar Treinamento e Avaliação na API (/treinar e /avaliar)
 
 ## Instruções de Configuração
 
