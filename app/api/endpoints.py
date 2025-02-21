@@ -11,7 +11,7 @@ router = APIRouter()
 @router.post("/diagnosticar", response_model=DiagnosisOutput)
 async def diagnose(input_data: PediatricAdenoiditisInput):
     try:
-        print("🔹 Entrada recebida:", input_data.dict())  #depuração
+        print("Entrada recebida:", input_data.dict())  #depuração
         diagnostico, cluster, confianca = predict_adenoiditis(input_data.dict())
         
         recommendations = get_recommendations(cluster, confianca)
@@ -22,7 +22,7 @@ async def diagnose(input_data: PediatricAdenoiditisInput):
             recomendacoes=recommendations
         )
     except Exception as e:
-        print("❌ ERRO:", e)  #depuração básica
+        print("ERRO:", e)  #depuração básica
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -46,9 +46,9 @@ def train():
 @router.get("/avaliar")
 def evaluate():
     try:
-        modelo = joblib.load("models/saved/modelo.joblib")
-        X_test = pd.read_csv("data/processed/X_test.csv")
-        y_test = pd.read_csv("data/processed/y_test.csv")
+        modelo = joblib.load("models/saved/modelo_knn.joblib")
+        X_test = pd.read_csv("data/processed/X.csv")
+        y_test = pd.read_csv("data/processed/y.csv")
         resultado = evaluate_model(modelo, X_test, y_test)
         return {"message": "Avaliação realizada!", "result": resultado}
     except Exception as e:
