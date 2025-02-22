@@ -10,7 +10,7 @@ Este projecto desenvolve uma solução de ML para diagnosticar adenoidite em cri
   - Agrupamento com K-Means Clustering.
 - Frontend desenvolvido em Next.js para interação com o usuário.
 
-##Resumo da sequência de execução
+## Resumo da sequência de execução
 1️⃣ Configurar ambiente (Criar venv, instalar dependências)
 2️⃣ Pré-processar os dados (preprocessing.py)
 3️⃣ Executar Clusterização (K-Means) (clustering.py)
