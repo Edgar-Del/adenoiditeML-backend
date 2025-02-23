@@ -42,7 +42,7 @@ class DataPreprocessor:
         """Aplica o mesmo pré-processamento em novos dados."""
         df_processed = df.copy()
 
-        print("🔹 Antes do pré-processamento:\n", df_processed)
+        print("Antes do pré-processamento:\n", df_processed)
 
         # Criar nova feature de gravidade dos sintomas
         df_processed['gravidade_sintoma'] = (
@@ -57,9 +57,9 @@ class DataPreprocessor:
             if col in self.label_encoders:
                 df_processed[col] = self.label_encoders[col].transform(df_processed[col].astype(str))
             else:
-                raise ValueError(f"❌ ERRO: LabelEncoder para {col} não encontrado!")
+                raise ValueError(f"ERRO: LabelEncoder para {col} não encontrado!")
 
-        print("🔹 Depois do pré-processamento:\n", df_processed)
+        print("Depois do pré-processamento:\n", df_processed)
 
         # Selecionar características (ordem correta)
         clinical_features = [
@@ -70,7 +70,7 @@ class DataPreprocessor:
         # Garantir que as colunas existam no DataFrame
         for col in clinical_features:
             if col not in df_processed:
-                raise ValueError(f"❌ ERRO: Coluna {col} está ausente após o pré-processamento!")
+                raise ValueError(f"ERRO: Coluna {col} está ausente após o pré-processamento!")
 
         X = df_processed[clinical_features]
         X_scaled = pd.DataFrame(self.scaler.transform(X), columns=clinical_features)
