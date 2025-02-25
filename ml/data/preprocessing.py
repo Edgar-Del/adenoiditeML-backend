@@ -12,8 +12,8 @@ class DataPreprocessor:
 
         # Criar feature de gravidade dos sintomas
         df_processed['gravidade_sintoma'] = (
-            df_processed['obstrução_nasal_persistente'] +
-            df_processed['secreção_nasal_purulenta'] +
+            df_processed['obstrucao_nasal_persistente'] +
+            df_processed['secrecao_nasal_purulenta'] +
             df_processed['Febre_e_mal_estar_geral']
         ) / 3
 
@@ -36,8 +36,8 @@ class DataPreprocessor:
     def transform(self, df: pd.DataFrame):
         df_processed = df.copy()
         df_processed['gravidade_sintoma'] = (
-            df_processed['obstrução_nasal_persistente'] +
-            df_processed['secreção_nasal_purulenta'] +
+            df_processed['obstrucao_nasal_persistente'] +
+            df_processed['secrecao_nasal_purulenta'] +
             df_processed['Febre_e_mal_estar_geral']
         ) / 3
         
