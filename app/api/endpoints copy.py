@@ -1,19 +1,19 @@
 from fastapi import APIRouter, HTTPException
 from app.api.models import PediatricAdenoiditisInput, DiagnosisOutput
 from ml.models.predict import predict_adenoiditis
-from typing import List
-from fastapi import APIRouter, HTTPException
-from app.api.models import PediatricAdenoiditisInput, DiagnosisOutput
-from ml.models.predict import predict_adenoiditis
-from typing import List
+from ml.models.train import train_model
+from ml.utils.evaluation import evaluate_model
 import joblib
+import pandas as pd
 
 router = APIRouter()
 
 @router.post("/diagnosticar", response_model=DiagnosisOutput)
 async def diagnose(input_data: PediatricAdenoiditisInput):
     try:
+        print("Entrada recebida:", input_data.dict())  #depuração
         diagnostico, cluster, confianca = predict_adenoiditis(input_data.dict())
+        
         recommendations = get_recommendations(cluster, confianca)
         return DiagnosisOutput(
             diagnostico=diagnostico,
@@ -22,7 +22,9 @@ async def diagnose(input_data: PediatricAdenoiditisInput):
             recomendacoes=recommendations
         )
     except Exception as e:
+        print("ERRO:", e)  #depuração básica
         raise HTTPException(status_code=500, detail=str(e))
+
 
 def get_recommendations(cluster: int, confianca: float) -> str:
     severity_levels = {0: "Leve", 1: "Moderado", 2: "Grave"}
@@ -33,46 +35,21 @@ def get_recommendations(cluster: int, confianca: float) -> str:
     }
     return f"Nível de Gravidade: {severity_levels.get(cluster, 'Desconhecido')}\n{base_recommendations.get(cluster, 'Sem recomendações')}"
 
-# Correção para garantir que o modelo seja carregado corretamente
-def load_model():
+@router.post("/treinar")
+def train():
     try:
-        modelo = joblib.load("models/saved/modelo.joblib")
-        pre_processador = joblib.load("models/saved/pre_processador.joblib")
-        return modelo, pre_processador
-    except FileNotFoundError:
-        raise RuntimeError("Arquivo do modelo não encontrado. Certifique-se de que o modelo foi treinado e salvo corretamente.")
+        train_model("data/raw/dataset.csv", "models/saved")
+        return {"message": "Modelo treinado e salvo com sucesso!"}
     except Exception as e:
-        raise RuntimeError(f"Erro ao carregar modelo: {e}")
-router = APIRouter()
+        raise HTTPException(status_code=500, detail=f"Erro no treinamento: {e}")
 
-@router.post("/diagnosticar", response_model=DiagnosisOutput)
-async def diagnose(input_data: PediatricAdenoiditisInput):
+@router.get("/avaliar")
+def evaluate():
     try:
-        diagnosistico, cluster, confianca = predict_adenoiditis(input_data.dict())
-        
-        # Gerar recomendações com base na gravidade.
-        recommendations = get_recommendations(cluster, confianca)
-        
-        return DiagnosisOutput(
-            diagnosistico=diagnosistico,
-            grupo_gravidade=cluster,
-            confianca=confianca,
-            recomendacoes=recommendations
-        )
+        modelo = joblib.load("models/saved/modelo_knn.joblib")
+        X_test = pd.read_csv("data/processed/X.csv")
+        y_test = pd.read_csv("data/processed/y.csv")
+        resultado = evaluate_model(modelo, X_test, y_test)
+        return {"message": "Avaliação realizada!", "result": resultado}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-def get_recommendations(cluster: int, confianca: float) -> str:
-    severity_levels = {
-        0: "Leve",
-        1: "Moderado",
-        2: "Grave"
-    }
-    
-    base_recommendations = {
-        0: "Monitorar os sintomas e realizar acompanhamento em 3 meses",
-        1: "Agendar acompanhamento em 1 mês e considerar terapia médica",
-        2: "Consulta imediata com especialista recomendada"
-    }
-    
-    return f"Nível de Gravidade: {severity_levels[cluster]}\n{base_recommendations[cluster]}"
+        raise HTTPException(status_code=500, detail=f"Erro na avaliação: {e}")
