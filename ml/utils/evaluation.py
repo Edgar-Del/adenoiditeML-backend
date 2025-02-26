@@ -1,28 +1,42 @@
+import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
-def evaluate_model(model_path: str, X_test, y_test, output_path: str):
-    # Carregar o modelo treinado
-    modelo = joblib.load(model_path)
+
+def evaluate_model(model_path, data_path):
+    print("🔍 Avaliando o modelo...")
     
-    # Fazer previsões
-    y_pred = modelo.predict(X_test)
+    # Carregar dataset e modelos
+    df = pd.read_csv(data_path)
+    knn = joblib.load(f"{model_path}/modelo_knn.joblib")
+    pca = joblib.load(f"{model_path}/modelo_pca.joblib")
+    preprocessor = joblib.load("models/saved/scaler.joblib")
     
-    # Gerar matriz de confusão
-    cm = confusion_matrix(y_test, y_pred)
+    # Processar os dados
+    X = df.drop(columns=['diagnostico_adenoidite'])
+    y_true = df['diagnostico_adenoidite']
+    X_scaled = preprocessor.transform(X)
+    X_pca = pca.transform(X_scaled)
+    
+    # Fazer predições
+    y_pred = knn.predict(X_pca)
+    
+    # Avaliação
+    accuracy = accuracy_score(y_true, y_pred) * 100
+    print(f"🎯 Acurácia do modelo: {accuracy:.2f}%")
+    print("📊 Relatório de Classificação:\n", classification_report(y_true, y_pred))
+    
+    # Matriz de Confusão
+    cm = confusion_matrix(y_true, y_pred)
     plt.figure(figsize=(6, 4))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Negativo', 'Positivo'], yticklabels=['Negativo', 'Positivo'])
     plt.xlabel("Predito")
     plt.ylabel("Real")
     plt.title("Matriz de Confusão")
-    plt.savefig(output_path)
-    plt.close()
-    
-    # Imprimir relatório de classificação
-    report = classification_report(y_test, y_pred)
-    accuracy = accuracy_score(y_test, y_pred)
-    print("Relatório de Classificação:\n", report)
-    print(f"Acurácia do modelo: {accuracy * 100:.2f}%")
-    return report, accuracy
+    plt.show()
+
+
+if __name__ == "__main__":
+    evaluate_model("models/saved", "data/raw/dataset.csv")

@@ -1,59 +1,51 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import LabelEncoder
+import joblib
 
-def gerar_dataset(num_samples=150):
-    """
-    Gerar um dataset sintético para o diagnóstico de Adenoidite.
+np.random.seed(42)  # Garantir reprodutibilidade
+total_registros = 150
 
-    Parâmetros:
-    - `num_samples`: Número de registros sintéticos de pacientes a serem gerados.
+# Criando os dados sintéticos
+data = {
+    'idade_mes': np.random.randint(6, 145, total_registros),
+    'genero': np.random.choice(['M', 'F'], total_registros),
+    'obstrucao_nasal_persistente': np.random.binomial(1, 0.7, total_registros),
+    'secrecao_nasal_purulenta': np.random.binomial(1, 0.4, total_registros),
+    'dor_de_garganta_e_dificuldade_para_engolir': np.random.binomial(1, 0.6, total_registros),
+    'Febre_e_mal_estar_geral': np.random.binomial(1, 0.5, total_registros),
+    'linfodenopatia_cervical': np.random.binomial(1, 0.3, total_registros),
+    'alteracao_na_voz': np.random.binomial(1, 0.4, total_registros),
+    'problemas_auditivos': np.random.binomial(1, 0.25, total_registros),
+    'sintomas_de_infeccao_recorrente': np.random.binomial(1, 0.5, total_registros),
+    'disturbios_de_sono_e_desenvolvimento': np.random.binomial(1, 0.6, total_registros),
+    'tamanho_adenoide': np.random.choice([1, 2, 3, 4], total_registros, p=[0.1, 0.3, 0.4, 0.2])
+}
 
-    Retorno:
-    - Um DataFrame do pandas com dados sintéticos de pacientes.
-    """
-    np.random.seed(42)  # Garantir reprodutibilidade
-    
-    data = {
-        'id_paciente': range(1, num_samples + 1),
-        'idade_mes': np.random.randint(6, 145, num_samples),
-        'genero': np.random.choice(['M', 'F'], num_samples),
-        'obstrucao_nasal_persistente': np.random.binomial(1, 0.7, num_samples),
-        'secrecao_nasal_purulenta': np.random.binomial(1, 0.4, num_samples),
-        'dor_de_garganta_e_dificuldade_para_engolir': np.random.binomial(1, 0.6, num_samples),
-        'Febre_e_mal_estar_geral': np.random.binomial(1, 0.5, num_samples),
-        'linfodenopatia_cervical': np.random.binomial(1, 0.3, num_samples),
-        'alteracao_na_voz': np.random.binomial(1, 0.4, num_samples),
-        'problemas_auditivos': np.random.binomial(1, 0.25, num_samples),
-        'sintomas_de_infeccao_recorrente': np.random.binomial(1, 0.5, num_samples),
-        'disturbios_de_sono_e_desenvolvimento': np.random.binomial(1, 0.6, num_samples),
-        'tamanho_adenoide': np.random.choice([1, 2, 3, 4], num_samples, p=[0.1, 0.3, 0.4, 0.2])
-    }
+# Criar diagnóstico com base em critérios clínicos
+prob_diagnostico = (
+    0.4 * (data['tamanho_adenoide'] / 4) + 
+    0.3 * data['obstrucao_nasal_persistente'] +
+    0.2 * data['secrecao_nasal_purulenta'] +
+    0.1 * data['Febre_e_mal_estar_geral']
+)
 
-    # Diagnóstico baseado em critérios clínicos
-    prob_diagnostico = (
-        0.4 * (data['tamanho_adenoide'] / 4) +
-        0.3 * data['obstrucao_nasal_persistente'] +
-        0.2 * data['secrecao_nasal_purulenta'] +
-        0.1 * data['Febre_e_mal_estar_geral']
-    )
+# Definir limiar para diagnóstico (~50% positivo e 50% negativo)
+limiar = np.percentile(prob_diagnostico, 50)
+data['diagnostico_adenoidite'] = (prob_diagnostico > limiar).astype(int)
 
-    # Limiar para balanceamento (~50% casos positivos e negativos)
-    limiar = np.percentile(prob_diagnostico, 50)
-    data['diagnostico_adenoidite'] = (prob_diagnostico > limiar).astype(int)
+# Criando DataFrame
+df = pd.DataFrame(data)
 
-    # Criar DataFrame
-    df = pd.DataFrame(data)
+# Aplicar LabelEncoder ao 'genero'
+le_genero = LabelEncoder()
+df['genero'] = le_genero.fit_transform(df['genero'])
 
-    # Salvar o dataset gerado
-    df.to_csv('data/raw/dataset.csv', index=False)
+# Salvar LabelEncoder para uso posterior
+joblib.dump(le_genero, "models/saved/labelencoder_genero.joblib")
 
-    print(df.head())
-    print("\nEstatísticas do Dataset:")
-    print(df.describe())
-    print("\nDistribuição de Diagnóstico:")
-    print(df['diagnostico_adenoidite'].value_counts(normalize=True))
+# Salvar dataset gerado
+df.to_csv("data/raw/dataset.csv", index=False)
 
-    return df
-
-# Gerar e salvar o dataset
-gerar_dataset(150)
+print("✅ Dataset gerado com sucesso! Shape:", df.shape)
+print(df.head())
