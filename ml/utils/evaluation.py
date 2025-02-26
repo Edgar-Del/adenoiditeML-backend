@@ -6,7 +6,7 @@ from sklearn.metrics import confusion_matrix, classification_report, accuracy_sc
 
 
 def evaluate_model(model_path, data_path):
-    print("🔍 Avaliando o modelo...")
+    print("Avaliando o modelo...")
     
     # Carregar dataset e modelos
     df = pd.read_csv(data_path)
@@ -25,8 +25,8 @@ def evaluate_model(model_path, data_path):
     
     # Avaliação
     accuracy = accuracy_score(y_true, y_pred) * 100
-    print(f"🎯 Acurácia do modelo: {accuracy:.2f}%")
-    print("📊 Relatório de Classificação:\n", classification_report(y_true, y_pred))
+    print(f"Acurácia do modelo: {accuracy:.2f}%")
+    print("Relatório de Classificação:\n", classification_report(y_true, y_pred))
     
     # Matriz de Confusão
     cm = confusion_matrix(y_true, y_pred)

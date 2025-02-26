@@ -47,5 +47,5 @@ joblib.dump(le_genero, "models/saved/labelencoder_genero.joblib")
 # Salvar dataset gerado
 df.to_csv("data/raw/dataset.csv", index=False)
 
-print("✅ Dataset gerado com sucesso! Shape:", df.shape)
+print("Dataset gerado com sucesso! Shape:", df.shape)
 print(df.head())

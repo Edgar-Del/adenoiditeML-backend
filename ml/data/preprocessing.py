@@ -23,7 +23,7 @@ class DataPreprocessor:
         joblib.dump(self.label_encoders, "models/saved/label_encoders.joblib")
         joblib.dump(self.scaler, "models/saved/scaler.joblib")
 
-        print(f"✅ Treinamento: X shape {X_scaled.shape}, y shape {y.shape}")
+        print(f"Treinamento: X shape {X_scaled.shape}, y shape {y.shape}")
         return X_scaled, y
 
     def transform(self, df):
@@ -35,5 +35,5 @@ class DataPreprocessor:
 
         df_scaled = pd.DataFrame(self.scaler.transform(df), columns=df.columns)
 
-        print(f"✅ Predição: X shape {df_scaled.shape}")
+        print(f"Predição: X shape {df_scaled.shape}")
         return df_scaled
