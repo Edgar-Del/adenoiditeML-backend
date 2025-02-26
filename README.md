@@ -5,8 +5,6 @@ Este projecto desenvolve uma solução de Aplicação de Machine Learning no Dia
 
 ## Componentes Principais
 - API de Machine Learning baseada em Python utilizando FastAPI.
-- Frontend desenvolvido em Next.js para interação com o usuário.
-
 
 ## 🚀 1️⃣ Configuração Inicial
 
