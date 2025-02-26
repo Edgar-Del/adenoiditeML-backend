@@ -1,54 +1,46 @@
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+import joblib
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 class DataPreprocessor:
     def __init__(self):
-        self.scaler = StandardScaler()
         self.label_encoders = {}
+        self.scaler = StandardScaler()
 
-    def fit_transform(self, df: pd.DataFrame):
-        df_processed = df.copy()
+    def fit_transform(self, df):
+        # Certificar-se de que 'diagnostico_adenoidite' está presente (somente no treinamento)
+        if 'diagnostico_adenoidite' not in df.columns:
+            raise ValueError("A coluna 'diagnostico_adenoidite' não foi encontrada no dataset de treinamento!")
 
-        # Criar feature de gravidade dos sintomas
-        df_processed['gravidade_sintoma'] = (
-            df_processed['obstrucao_nasal_persistente'] +
-            df_processed['secrecao_nasal_purulenta'] +
-            df_processed['Febre_e_mal_estar_geral']
-        ) / 3
+        # Separar target (y) e features (X)
+        y = df['diagnostico_adenoidite']
+        X = df.drop(columns=['diagnostico_adenoidite'])
 
-        # Processar variáveis categóricas
-        categorical_cols = ['genero']
-        for col in categorical_cols:
-            le = LabelEncoder()
-            df_processed[col] = le.fit_transform(df_processed[col].astype(str))
-            self.label_encoders[col] = le
+        # Converter 'genero' para numérico usando LabelEncoder
+        if 'genero' in X.columns:
+            self.label_encoders['genero'] = LabelEncoder()
+            X['genero'] = self.label_encoders['genero'].fit_transform(X['genero'])
 
-        # Selecionar features para modelo
-        features = ['idade_mes', 'genero', 'gravidade_sintoma', 'tamanho_adenoide']
-        X = df_processed[features]
-        y = df_processed['diagnostico_adenoidite']
-
+        # Normalizar os dados
         X_scaled = pd.DataFrame(self.scaler.fit_transform(X), columns=X.columns)
 
-        return X_scaled, y
+        # Salvar LabelEncoder e Scaler para uso posterior na API
+        joblib.dump(self.label_encoders['genero'], "models/saved/labelencoder_genero.joblib")
+        joblib.dump(self.scaler, "models/saved/scaler.joblib")
 
-    def transform(self, df: pd.DataFrame):
-        df_processed = df.copy()
-        df_processed['gravidade_sintoma'] = (
-            df_processed['obstrucao_nasal_persistente'] +
-            df_processed['secrecao_nasal_purulenta'] +
-            df_processed['Febre_e_mal_estar_geral']
-        ) / 3
-        
-        categorical_cols = ['genero']
-        for col in categorical_cols:
-            if col in self.label_encoders:
-                df_processed[col] = self.label_encoders[col].transform(df_processed[col].astype(str))
-            else:
-                raise ValueError(f"LabelEncoder para {col} não encontrado!")
-        
-        features = ['idade_mes', 'genero', 'gravidade_sintoma', 'tamanho_adenoide']
-        X = df_processed[features]
-        X_scaled = pd.DataFrame(self.scaler.transform(X), columns=X.columns)
-        return X_scaled
+        print(f"✅ Treinamento: X shape {X_scaled.shape}, y shape {y.shape}")
+        return X_scaled, y  # Retorna dois valores corretamente
+
+    def transform(self, df):
+        # Garantir que o LabelEncoder foi carregado corretamente
+        if 'genero' in df.columns:
+            if 'genero' not in self.label_encoders:
+                self.label_encoders['genero'] = joblib.load("models/saved/labelencoder_genero.joblib")
+            df['genero'] = self.label_encoders['genero'].transform([df['genero'][0]])[0]
+
+        # Aplicar normalização
+        self.scaler = joblib.load("models/saved/scaler.joblib")
+        df_scaled = pd.DataFrame(self.scaler.transform(df), columns=df.columns)
+
+        print(f"✅ Predição: X shape {df_scaled.shape}")
+        return df_scaled
