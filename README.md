@@ -24,7 +24,7 @@ pip install -r requirements.txt
 ## 📂 2️⃣ Gerar o Dataset
 
 ```bash
-python dataset_generator.py
+python -m ml.utils.dataset-generator
 ```
 ✅ **Saída esperada:**
 ```
